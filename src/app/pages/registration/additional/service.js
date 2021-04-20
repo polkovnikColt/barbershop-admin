@@ -33,5 +33,11 @@ export const formData = [
         message:"",
         inputComponent: Input
     },
+    {
+        label:"Phone number",
+        name:"phoneNumber",
+        message:"",
+        inputComponent: Input
+    },
 
 ]

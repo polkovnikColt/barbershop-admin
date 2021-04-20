@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {Layout,Table} from "antd";
-import {columns, getDefaultSignsTime, getSignsTime, signFormData, transform} from "./additional/service";
-import {useSelector} from "react-redux";
+import {columns, getDefaultSignsTime, getSignsTime, signFormData, transform, validate} from "./additional/service";
+import {useDispatch, useSelector} from "react-redux";
 import {usePreload} from "../../hooks/usePreLoad";
-import {deleteSign, loadAllSign, updateProcedure} from "../../store/user/userActions";
+import {addSign, deleteSign, loadAllSign, updateProcedure, updateSign} from "../../store/user/userActions";
 import {Accordion} from "../../components/accordion/Collapse";
 import {MainForm} from "../../components/forms/MainForm";
 import {getNames} from "../main/additional/service";
@@ -15,24 +15,35 @@ const {Content}= Layout;
 export const SignPage = () => {
 
     const user = useSelector(store => store.user);
+    const dispatch = useDispatch();
     const [recordId, setRecordId] = useState(0);
+    const [record,setRecord] = useState({
+        day:"",
+        time:""
+    });
 
 
     usePreload(loadAllSign)
 
-    const changeHandler = () => {
-
+    const changeHandler = (name,value) => {
+        setRecord({...record, [name]:value})
     }
 
-    const submitHandler = () => {
-
+    const updateHandler = () => {
+        if(!validate(record)){
+            alert("All field must be filled");
+            return;
+        }
+        record.recordId = recordId;
+        dispatch(updateSign(record))
     }
 
-    const selectorHandler = (time) => {
-        const id = user.allSign.filter(sign => {
-           return  sign.recordTime === time
-        })[0].recordID
-        setRecordId(id)
+    const selectorHandler = (_,time) => {
+        const sign = user.allSign.filter(sign => {
+           return sign.recordTime === time
+        })[0]
+        setRecordId(sign.recordId);
+        setRecord(sign);
     }
 
     return (
@@ -45,19 +56,10 @@ export const SignPage = () => {
                             hasSelector={true}
                             hasCheckBox={false}
                             handleChange={changeHandler}
-                            handleSubmit={submitHandler}
+                            handleSubmit={updateHandler}
                             selectorHandler={selectorHandler}
                             values={getDefaultSignsTime(user.allSign)}
                             keys="Time of record"
-                        />
-                    </Accordion>
-                    <Accordion text="Add record">
-                        <MainForm
-                            formData={signFormData}
-                            hasSelector={false}
-                            hasCheckBox={false}
-                            handleChange={changeHandler}
-                            handleSubmit={submitHandler}
                         />
                     </Accordion>
                     <Accordion text="Delete record">

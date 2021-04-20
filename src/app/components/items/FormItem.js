@@ -21,6 +21,6 @@ export const FormItem =
             name={name}
             rules={[{required: true, message: message}]}
         >
-            <InputComponent onChange={name === 'birthday' ? handleMoment : handleChange}/>
+            <InputComponent onChange={name === 'day' || name === 'time' ? handleMoment : handleChange}/>
         </Form.Item>)
 }

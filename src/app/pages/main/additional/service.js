@@ -42,3 +42,11 @@ export const procedureFormData = [
 export const getNames = (procedures) => {
     return procedures.map(proc => proc.name);
 }
+
+export const validate = (proc) => {
+    console.log(proc);
+    const correctName = proc.name !== "";
+    const correctDuration = proc.duration !== "" && typeof proc.duration === "number";
+    const correctPrice = proc.price !== "" && typeof proc.price === "number";
+    return correctDuration && correctName && correctPrice;
+}

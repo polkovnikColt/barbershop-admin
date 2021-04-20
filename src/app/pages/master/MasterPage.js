@@ -1,9 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 import {Table, Layout} from "antd";
-import {column} from "./additional/service";
-import {useSelector} from "react-redux";
+import {column, masterCred, masterFormData} from "./additional/service";
+import {useDispatch, useSelector} from "react-redux";
 import {usePreload} from "../../hooks/usePreLoad";
-import {loadAllMasters, updateProcedure} from "../../store/user/userActions";
+import {addMaster, deleteMaster, loadAllMasters, updateMaster} from "../../store/user/userActions";
 import {Accordion} from "../../components/accordion/Collapse";
 import {MainForm} from "../../components/forms/MainForm";
 import {getNames} from "./additional/service";
@@ -14,20 +14,34 @@ const {Content} = Layout;
 //TODO create CUD operations
 export const MasterPage = () => {
 
+    const dispatch = useDispatch();
     const user = useSelector(store => store.user);
+    const [masterId,setMasterId] = useState(0);
+    const [master,setMaster] = useState(masterCred);
 
     usePreload(loadAllMasters);
 
-    const changeHandler = () => {
-
+    const changeHandler = (name,value) => {
+        setMaster({...master, [name]:value});
     }
 
-    const submitHandler = () => {
-
+    const addHandler = () => {
+        dispatch(addMaster(master));
     }
 
-    const selectorHandler = () => {
+    const updateHandler = () => {
+        master.accountId = masterId;
+        dispatch(updateMaster(master));
+    }
 
+    const selectorHandler = (_,masterName) => {
+        const masterF = user.allMasters.filter(
+            master => {
+              return  master.firstName.concat(" ", master.lastName) === masterName
+            }
+        )[0];
+        setMasterId(masterF.accountId);
+        setMaster({...master,...masterF})
     }
 
     return (
@@ -37,11 +51,11 @@ export const MasterPage = () => {
                 <div className="m-1">
                     <Accordion text="Update master credentials">
                         <MainForm
-                            formData={[]}
+                            formData={masterFormData}
                             hasSelector={true}
                             hasCheckBox={false}
                             handleChange={changeHandler}
-                            handleSubmit={submitHandler}
+                            handleSubmit={updateHandler}
                             selectorHandler={selectorHandler}
                             values={getNames(user.allMasters)}
                             keys="Master's name"
@@ -49,20 +63,20 @@ export const MasterPage = () => {
                     </Accordion>
                     <Accordion text="Add master">
                         <MainForm
-                            formData={[]}
+                            formData={masterFormData}
                             hasSelector={false}
                             hasCheckBox={false}
                             handleChange={changeHandler}
-                            handleSubmit={submitHandler}
+                            handleSubmit={addHandler}
                         />
                     </Accordion>
                     <Accordion text="Delete master">
                         <Manipulator
                             values={getNames(user.allMasters)}
                             name="Delete"
-                            id={0}
+                            id={masterId}
                             buttonText="Delete"
-                            dispatchFunction={updateProcedure}
+                            dispatchFunction={deleteMaster}
                             handler={selectorHandler}
                             message="Delete master"
                         />

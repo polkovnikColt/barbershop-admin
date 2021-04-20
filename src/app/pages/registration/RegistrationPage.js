@@ -2,13 +2,24 @@ import React, {useState} from 'react';
 import {Space, Row, Button, Input, Layout} from "antd";
 import {MainForm} from "../../components/forms/MainForm";
 import {formData, keyWord} from "./additional/service";
+import {useDispatch} from "react-redux";
+import {registration} from "../../store/user/userActions";
 
 const {Content} = Layout;
 
 //TODO create CUD operations
 export const RegistrationPage = () => {
+    const dispatch = useDispatch();
     const [key, setKey] = useState('');
     const [hasKey, setHasKey] = useState(false);
+    const [admin,setAdmin] = useState({
+        email:"",
+        password:"",
+        firstName:"",
+        lastName:"",
+        age:"",
+        phoneNumber:""
+    })
 
     const keyHandler = (e) => {
         setKey(e.target.value);
@@ -23,12 +34,12 @@ export const RegistrationPage = () => {
         }
     }
 
-    const handleChange = () => {
-
+    const handleChange = (name,value) => {
+        setAdmin({...admin,[name]:value});
     }
 
     const handleSubmit = () => {
-
+        dispatch(registration(admin))
     }
 
     return (
